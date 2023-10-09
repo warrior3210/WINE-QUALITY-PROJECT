@@ -1,0 +1,113 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv"
+wine_data = pd.read_csv(url, sep=";")
+
+
+def explore_wine_data(question):
+    if question == 1:
+        
+        wine_quality_distribution = wine_data['quality'].value_counts().sort_index()
+
+        # Display table
+        print("\nTable - Distribution of Wine Quality Scores:")
+        print("Quality Score (Column 1): Count (Column 2)")
+        print(wine_quality_distribution)
+
+        
+        plt.figure(figsize=(8, 5))
+        plt.bar(wine_quality_distribution.index, wine_quality_distribution.values)
+        plt.title('Distribution of Wine Quality Scores')
+        plt.xlabel('Quality')
+        plt.ylabel('Count')
+        plt.show()
+
+        
+        print("\nConclusion:")
+        print("The distribution of wine quality scores shows that most wines have a quality score of 6.")
+
+    elif question == 2:
+        
+        feature_names = wine_data.columns[:-1]  
+        quality_levels = sorted(wine_data['quality'].unique())
+
+        plt.figure(figsize=(12, 10))
+
+        # Plot subplots for each feature
+        for i, feature in enumerate(feature_names, 1):
+            plt.subplot(3, 4, i)
+            for level in quality_levels:
+                feature_mean = wine_data[wine_data['quality'] == level][feature].mean()
+                plt.bar(str(level), feature_mean, label=f'Quality {level}')
+            plt.title(f'{feature} vs. Wine Quality')
+            plt.xlabel('Quality')
+            plt.ylabel(f'Mean {feature}')
+            plt.legend()
+
+        plt.tight_layout()
+        plt.show()
+
+        
+        print("\nConclusion:")
+        print("The relationship between different features and wine quality can be visually observed.")
+
+    elif question == 3:
+        
+        correlation_matrix = wine_data.corr()
+        feature_importances = abs(correlation_matrix['quality']).drop('quality')
+        feature_names = feature_importances.index
+        sorted_indices = feature_importances.argsort()[::-1]
+        sorted_feature_importances = feature_importances[sorted_indices]
+        sorted_feature_names = feature_names[sorted_indices]
+
+        # Display table
+        print("\nTable - Feature Importances (Correlation with Wine Quality):")
+        print("Feature (Column 1): Correlation with Wine Quality (Column 2)")
+        feature_importance_table = pd.DataFrame(
+            {'Feature': sorted_feature_names, 'Correlation': sorted_feature_importances}).reset_index(drop=True)
+        print(feature_importance_table)
+
+        # Display bar plot for feature importances
+        plt.figure(figsize=(12, 6))
+        plt.bar(sorted_feature_names, sorted_feature_importances)
+        plt.title('Feature Importances (Correlation with Wine Quality)')
+        plt.xlabel('Feature')
+        plt.ylabel('Correlation')
+        plt.xticks(rotation=90)
+        plt.show()
+
+        
+        print("\nConclusion:")
+        print(
+            "The most important factors that influence the quality of wine, based on correlation with wine quality, are as follows:")
+        for feature, correlation in zip(sorted_feature_names, sorted_feature_importances):
+            print(f"{feature}: {correlation:.3f}")
+
+    elif question == 4:
+        print("Thank you for using the Wine Quality Analysis Program. Exiting now.")
+        exit()
+    else:
+        print("Invalid question number")
+
+
+
+print("Welcome to the Wine Quality Analysis Program!")
+
+while True:
+
+    try:
+        print("\nOptions:")
+        print("1. What is the distribution of the wine quality scores?")
+        print("2. What is the relationship between the different features and wine quality?")
+        print("3. What are the most important factors that influence the quality of wine?")
+        print("4. Exit")
+
+        question_number = int(input("Enter the question number (1, 2, 3, or 4): "))
+        if question_number in [1, 2, 3, 4]:
+            explore_wine_data(question_number)
+        else:
+            print("Invalid option. Please enter a valid question number (1, 2, 3, or 4).")
+    except ValueError:
+        print("Invalid input. Please enter a valid question number (1, 2, 3, or 4).")
